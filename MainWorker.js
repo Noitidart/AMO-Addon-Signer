@@ -172,7 +172,7 @@ function signUnsignedXpi(path, amo_key, amo_secret) {
 
 		var getCorrectedSystemTime = ()=>(Date.now() - systemTimeOffset);
 		var initiateUpload = function() {
-			console.log('submitting upload');
+			console.log('submitting upload - ', AMODOMAIN + '/api/v3/addons/' + encodeURIComponent(xpiid) + '/versions/' + xpiversion + '/');
 
 			var unsigned_domfile = new File([new Blob([unsigned_uint8.buffer], {type:'application/zip'})], 'dummyname.xpi');
 			var data = new FormData();
@@ -247,7 +247,7 @@ function signUnsignedXpi(path, amo_key, amo_secret) {
 
 						if (request.response.files.length === 1) {
 							// ok review complete and approved - download it
-							console.log('GOOD - ok review completed and submission approved')
+							console.log('GOOD - ok review completed and submission approved - downloading to desktop - ', request.response.files[0].download_url);
 							xhrAsync(request.response.files[0].download_url, {
 								responseType: 'arraybuffer',
 								headers: {
@@ -279,10 +279,10 @@ function signUnsignedXpi(path, amo_key, amo_secret) {
 		var callbackDownloadSigned = function(xhrArg) {
 			var { request, ok, reason } = xhrArg;
 			var { status, statusText, response } = request;
-			console.log('submit response:', { status, statusText, response });
+			console.log('download response:', { status, statusText, response });
 
 			switch (status) {
-				case 201:
+				case 200:
 					console.log('GOOD - downloaded data, saving signed xpi to desktop');
 					try {
 						OS.File.writeAtomic(OS.Path.join(OS.Constants.Path.desktopDir, 'signed.xpi'), new Uint8Array(request.response));
